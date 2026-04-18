@@ -1,0 +1,14 @@
+{
+  "name": "claude-toolbox",
+  "owner": {
+    "name": "Michael Hildebrandt",
+    "url": "https://github.com/michaelhil"
+  },
+  "plugins": [
+    {
+      "name": "claude-toolbox",
+      "source": "./",
+      "description": "catch-up (resume audit) + sdd (spec-driven planning) + /plan command"
+    }
+  ]
+}

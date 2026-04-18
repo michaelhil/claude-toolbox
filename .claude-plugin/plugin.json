@@ -1,0 +1,12 @@
+{
+  "name": "claude-toolbox",
+  "version": "0.1.0",
+  "description": "Portable toolbox for Claude Code: project resume audit (catch-up) + spec-driven planning (sdd). Designed to pair with stress-test-skill.",
+  "author": {
+    "name": "Michael Hildebrandt",
+    "url": "https://github.com/michaelhil"
+  },
+  "homepage": "https://github.com/michaelhil/claude-toolbox",
+  "repository": "https://github.com/michaelhil/claude-toolbox",
+  "license": "MIT"
+}
