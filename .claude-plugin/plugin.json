@@ -1,7 +1,7 @@
 {
   "name": "claude-toolbox",
-  "version": "0.2.0",
-  "description": "Portable toolbox for Claude Code: catch-up (resume audit), sdd (spec-driven planning), tidy (repo hygiene). Designed to pair with stress-test-skill.",
+  "version": "0.3.0",
+  "description": "Portable toolbox for Claude Code: catch-up (resume audit), sdd (spec-driven planning), stress-test (adversarial plan review), tidy (repo hygiene).",
   "author": {
     "name": "Michael Hildebrandt",
     "url": "https://github.com/michaelhil"

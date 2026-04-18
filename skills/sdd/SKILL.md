@@ -96,9 +96,9 @@ Target: one line per task. 5–15 tasks total for a typical feature. Each task s
 
 Output the three artifacts inline, in order: spec → plan → tasks. Tell the user: "Run `stress-test` on this before implementing." Do not start implementing.
 
-## Pairing with stress-test-skill
+## Pairing with stress-test
 
-SDD and stress-test are complementary, not overlapping:
+SDD and stress-test ship together in this plugin — stress-test is auto-triggerable by natural phrasing ("stress-test this", "poke holes in this", "review before I build"). Complementary, not overlapping:
 - SDD *creates* the plan.
 - stress-test *attacks* the plan.
 

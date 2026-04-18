@@ -8,6 +8,7 @@ A portable, reusable Claude Code plugin bundling skills and commands that improv
 |------|------|-------------|--------------|
 | **catch-up** | Skill | "catch me up", "resume", "what was I doing", "audit this project", "I'm back" | Audits recent git activity, in-flight work, TODOs, and CLAUDE.md drift. Asks up to 3 clarifying questions. Produces a brief (including hygiene signal counts) and writes it to `.claude/context/last-session.md` for next time. Points at `tidy` and `engineering:tech-debt` for deeper dives. |
 | **sdd** | Skill | "plan this feature", "how should we approach X", "design the Y feature", `/plan` | Spec-driven development: idea → spec → phased plan → task list. Asks up to 2 clarifying questions on scope. Pairs with stress-test for review. |
+| **stress-test** | Skill | "stress-test this plan", "review this before I build", "poke holes in this", "what's wrong with this plan", "red-team this" | Adversarial review of a coding plan across five axes (correctness, project fit, simplicity/bloat, refactor opportunities, tech debt). Asks clarifying questions inline. Returns a revised plan with finding-disposition table and changelog. |
 | **tidy** | Skill | "tidy", "clean up this repo", "repo hygiene", "what should I clean up", "audit file scope" | Repo hygiene audit — scope drift, versioned duplicates, tracked build artifacts, large files, untracked sprawl. Asks up to 3 clarifying questions. Produces a disposition table (keep / gitignore / move / delete / extract-to-separate-repo) + proposed commands. Never auto-applies destructive actions. |
 | **/plan** | Command | Manual: `/plan <feature description>` | Explicit invocation of the sdd skill when auto-trigger isn't firing. |
 
@@ -16,7 +17,7 @@ A portable, reusable Claude Code plugin bundling skills and commands that improv
 - **No tools to remember.** Skills auto-trigger from natural phrasing. The agent picks them up; you don't memorize names.
 - **Human-in-the-loop by design.** Every skill uses `AskUserQuestion` with clickable multiple-choice options at ambiguity points — so you steer without re-typing, and the agent doesn't guess wrong.
 - **One install per project.** `/plugin install` and done. No per-project configuration.
-- **Pairs with stress-test-skill.** SDD produces plans → stress-test critiques them → you approve → implement.
+- **Plan–critique loop built in.** SDD produces plans → stress-test critiques them → you approve → implement. No second install.
 
 ## Install (once, globally)
 
@@ -45,7 +46,7 @@ claude plugin update claude-toolbox@claude-toolbox
 
 ## Skills vs. commands — how to invoke
 
-- **Skills** (catch-up, sdd, tidy) auto-trigger from natural language matching their description. Just say what you want — `"catch me up"`, `"plan the login feature"`, `"tidy this repo"`. Do **not** type `/catch-up` — that's not a slash command.
+- **Skills** (catch-up, sdd, stress-test, tidy) auto-trigger from natural language matching their description. Just say what you want — `"catch me up"`, `"plan the login feature"`, `"stress-test this plan"`, `"tidy this repo"`. Do **not** type `/catch-up` — that's not a slash command.
 - **Slash commands** (`/plan`) are typed explicitly. Only `/plan` is a slash command in this plugin.
 
 ## Example: daily use
@@ -74,13 +75,15 @@ Then, before writing new code:
 
 > **You:** "Stress-test it."
 >
-> *(stress-test skill auto-triggers — from the companion stress-test-skill repo, installed globally)*
+> *(stress-test skill auto-triggers — bundled in this plugin)*
+>
+> **Agent:** Runs the adversarial review. Asks clarifying questions inline. Returns a revised plan with finding-disposition table and a what/why/how changelog.
 
 ## Use cases
 
 - **Returning to a project** after any gap → `catch-up`
 - **Starting a new feature** → `sdd` via natural ask or `/plan`
-- **Before committing to a plan** → pair with [stress-test-skill](https://github.com/michaelhil/stress-test-skill)
+- **Before committing to a plan** → `stress-test` via natural ask ("stress-test this", "poke holes in this plan")
 - **Repo feels cluttered / wrong files in the repo** → `tidy`
 - **Code-quality audit** → not bundled; use the built-in `engineering:tech-debt` skill
 - **Multi-project developer** who wants consistent workflow across repos → install once, globally
@@ -97,9 +100,22 @@ Each skill stays narrow and fast. Deep dives live in their own skill, invoked ex
 
 ## Companion tools (not bundled; install separately)
 
-- **[stress-test-skill](https://github.com/michaelhil/stress-test-skill)** — install globally in `~/.claude/skills/`. Adversarial plan review; pairs with `sdd`.
 - **Claude Code LSP plugin** (e.g. `Piebald-AI/claude-code-lsps`) — background typecheck diagnostics. Strongly recommended for TypeScript projects.
 - **RTK, Context Mode MCP** — token-reduction tools. Install only if `/context` baseline shows they'd help.
+
+## About the bundled stress-test skill
+
+The `stress-test` skill here is a pinned snapshot of [michaelhil/stress-test-skill](https://github.com/michaelhil/stress-test-skill) — the standalone repo remains the canonical source. The pin (short SHA) is recorded at `skills/stress-test/.upstream-pin`.
+
+To pull in upstream changes before a claude-toolbox release:
+
+```bash
+scripts/sync-stress-test.sh           # re-copy at the currently pinned ref
+scripts/sync-stress-test.sh main      # pick up upstream HEAD
+scripts/sync-stress-test.sh v0.3      # pin to a specific tag/SHA
+```
+
+Review the diff, update `.upstream-pin` and `plugin.json` version, commit. Bundled users get new stress-test behaviour only when a new claude-toolbox version ships — upstream changes don't propagate automatically.
 
 ## How it fits with CLAUDE.md and memory
 
@@ -137,10 +153,16 @@ claude-toolbox/
 │   │   └── references/checklist.md
 │   ├── sdd/
 │   │   └── SKILL.md
+│   ├── stress-test/
+│   │   ├── SKILL.md
+│   │   ├── references/axes-checklist.md
+│   │   └── .upstream-pin     SHA pinning the bundled snapshot
 │   └── tidy/
 │       └── SKILL.md
 ├── commands/
 │   └── plan.md               /plan slash command
+├── scripts/
+│   └── sync-stress-test.sh   re-sync stress-test from upstream
 ├── .github/ISSUE_TEMPLATE/   bug + improvement templates
 ├── LICENSE                   MIT
 └── README.md                 this file

@@ -11,7 +11,7 @@
     {
       "name": "claude-toolbox",
       "source": "./",
-      "description": "catch-up (resume audit) + sdd (spec-driven planning) + /plan command"
+      "description": "catch-up (resume audit) + sdd (spec-driven planning) + stress-test (adversarial review) + tidy (hygiene) + /plan command"
     }
   ]
 }
