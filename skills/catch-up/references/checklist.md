@@ -30,6 +30,16 @@ Load this when running step 1 (silent intake). Run as much as applies, in parall
 - Presence of `bun.lock` vs `package-lock.json` — runtime signal
 - Presence of `.claude-plugin/` or `.claude/settings.json` — project-specific tooling
 
+## Hygiene signals (counts only)
+
+Sub-second. Feeds the brief's `Hygiene signals` line. Not findings — just counts.
+
+- `git ls-files --others --exclude-standard | wc -l` — untracked count
+- `du -sh . --exclude=.git --exclude=node_modules 2>/dev/null` — repo size
+- `git ls-files | awk -F/ '{print $NF}' | sort | uniq -d | wc -l` — duplicate basenames
+
+If any count is non-trivial (untracked >20, duplicates >5, size >500MB), recommend `tidy` in the brief.
+
 ## What NOT to do in intake
 
 - Do not run tests or build

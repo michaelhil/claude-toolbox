@@ -6,8 +6,9 @@ A portable, reusable Claude Code plugin bundling skills and commands that improv
 
 | Item | Type | Triggers on | What it does |
 |------|------|-------------|--------------|
-| **catch-up** | Skill | "catch me up", "resume", "what was I doing", "audit this project", "I'm back" | Audits recent git activity, in-flight work, TODOs, and CLAUDE.md drift. Asks up to 3 clarifying questions. Produces a brief and writes it to `.claude/context/last-session.md` for next time. |
+| **catch-up** | Skill | "catch me up", "resume", "what was I doing", "audit this project", "I'm back" | Audits recent git activity, in-flight work, TODOs, and CLAUDE.md drift. Asks up to 3 clarifying questions. Produces a brief (including hygiene signal counts) and writes it to `.claude/context/last-session.md` for next time. Points at `tidy` and `engineering:tech-debt` for deeper dives. |
 | **sdd** | Skill | "plan this feature", "how should we approach X", "design the Y feature", `/plan` | Spec-driven development: idea → spec → phased plan → task list. Asks up to 2 clarifying questions on scope. Pairs with stress-test for review. |
+| **tidy** | Skill | "tidy", "clean up this repo", "repo hygiene", "what should I clean up", "audit file scope" | Repo hygiene audit — scope drift, versioned duplicates, tracked build artifacts, large files, untracked sprawl. Asks up to 3 clarifying questions. Produces a disposition table (keep / gitignore / move / delete / extract-to-separate-repo) + proposed commands. Never auto-applies destructive actions. |
 | **/plan** | Command | Manual: `/plan <feature description>` | Explicit invocation of the sdd skill when auto-trigger isn't firing. |
 
 ## Why use it
@@ -17,22 +18,35 @@ A portable, reusable Claude Code plugin bundling skills and commands that improv
 - **One install per project.** `/plugin install` and done. No per-project configuration.
 - **Pairs with stress-test-skill.** SDD produces plans → stress-test critiques them → you approve → implement.
 
-## Install (per project)
+## Install (once, globally)
 
-```bash
-# One-time: add this repo as a marketplace
+The plugin installs at **user scope** — once installed, skills auto-apply in every project without further setup.
+
+**From inside Claude Code (slash commands):**
+```
 /plugin marketplace add michaelhil/claude-toolbox
-
-# Install the plugin
 /plugin install claude-toolbox@claude-toolbox
 ```
 
-That's it. Skills, the `/plan` command, and documentation are available immediately.
+**From a terminal (agent-friendly):**
+```bash
+claude plugin marketplace add michaelhil/claude-toolbox
+claude plugin install claude-toolbox@claude-toolbox
+```
+
+**Restart Claude Code** after install so skills are picked up by the session.
 
 **To update:**
 ```bash
+claude plugin update claude-toolbox@claude-toolbox
+# or inside Claude Code:
 /plugin marketplace update claude-toolbox
 ```
+
+## Skills vs. commands — how to invoke
+
+- **Skills** (catch-up, sdd, tidy) auto-trigger from natural language matching their description. Just say what you want — `"catch me up"`, `"plan the login feature"`, `"tidy this repo"`. Do **not** type `/catch-up` — that's not a slash command.
+- **Slash commands** (`/plan`) are typed explicitly. Only `/plan` is a slash command in this plugin.
 
 ## Example: daily use
 
@@ -67,7 +81,19 @@ Then, before writing new code:
 - **Returning to a project** after any gap → `catch-up`
 - **Starting a new feature** → `sdd` via natural ask or `/plan`
 - **Before committing to a plan** → pair with [stress-test-skill](https://github.com/michaelhil/stress-test-skill)
-- **Multi-project developer** who wants consistent workflow across repos → install in each
+- **Repo feels cluttered / wrong files in the repo** → `tidy`
+- **Code-quality audit** → not bundled; use the built-in `engineering:tech-debt` skill
+- **Multi-project developer** who wants consistent workflow across repos → install once, globally
+
+## How the skills relate
+
+```
+catch-up  ──▶  surfaces hygiene signals ──▶  hand off to  tidy  (for action)
+catch-up  ──▶  surfaces debt signals    ──▶  hand off to  engineering:tech-debt
+sdd       ──▶  drafts plan              ──▶  hand off to  stress-test  (for critique)
+```
+
+Each skill stays narrow and fast. Deep dives live in their own skill, invoked explicitly.
 
 ## Companion tools (not bundled; install separately)
 
@@ -109,7 +135,9 @@ claude-toolbox/
 │   ├── catch-up/
 │   │   ├── SKILL.md
 │   │   └── references/checklist.md
-│   └── sdd/
+│   ├── sdd/
+│   │   └── SKILL.md
+│   └── tidy/
 │       └── SKILL.md
 ├── commands/
 │   └── plan.md               /plan slash command

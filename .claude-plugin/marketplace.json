@@ -1,5 +1,8 @@
 {
   "name": "claude-toolbox",
+  "metadata": {
+    "description": "Portable skills and commands for daily Claude Code workflows — project resume, spec-driven planning, repo hygiene."
+  },
   "owner": {
     "name": "Michael Hildebrandt",
     "url": "https://github.com/michaelhil"

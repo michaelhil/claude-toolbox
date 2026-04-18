@@ -21,6 +21,13 @@ Gather project state in parallel using Bash and Read:
 - Grep recent diffs for `TODO|FIXME|XXX|HACK` added in the last 2 weeks
 - If a typecheck or test command is obvious from `package.json` scripts, note it — do not run it yet
 
+**Hygiene signals (counts only, for the brief's Hygiene section):**
+- `git ls-files --others --exclude-standard | wc -l` — untracked file count
+- Total repo size: `du -sh . --exclude=.git --exclude=node_modules 2>/dev/null`
+- Duplicate basenames: `git ls-files | awk -F/ '{print $NF}' | sort | uniq -d | wc -l`
+
+These are sub-second. Do not produce findings from them — just counts. The `tidy` skill handles findings.
+
 Do **not** spawn Explore subagents. This is a shallow scan, not a code read.
 
 ### 2. AskUserQuestion clarification (cap: 3)
@@ -70,8 +77,17 @@ Return this exact structure inline to the user. Every bullet must cite a concret
 - `<file:line>` — <concrete issue, cited>
 - (or: "nothing to flag")
 
+## Hygiene signals
+- Untracked files: <N> · Repo size: <X MB> · Duplicate basenames: <N>
+- <one line recommending `tidy` if any count is non-trivial, omit line otherwise>
+
 ## Suggested next step
 <one concrete action — not a menu>
+
+## Deeper dives (optional)
+- Code quality / debt → invoke `engineering:tech-debt`
+- File hygiene / scope drift → invoke `tidy`
+- (Omit any bullet that's clearly not applicable.)
 ```
 
 ### 4. Persist handoff
